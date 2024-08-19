@@ -1,4 +1,4 @@
-from pyusbcameraindex import enumerate_usb_video_devices_windows,USBCameraDevice
+from pyusbcameraindex import enumerate_usb_video_devices_windows, USBCameraDevice
 import cv2
 import time
 from collections import namedtuple
