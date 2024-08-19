@@ -1,15 +1,7 @@
 import tkinter
 import tkinter.filedialog
-from tkinter import ttk
-from typing import Tuple
-from numpy.typing import NDArray
-import numpy as np
-from PIL import ImageTk, Image
-from utils import resize_image
-import threading
 from typing import List
-from camera_manager import CameraManager
-from microphone_manager import MicrophoneManager
+from typing import Tuple
 
 
 class GUIDevicePopup(tkinter.Frame):
@@ -22,7 +14,6 @@ class GUIDevicePopup(tkinter.Frame):
         self.window_size = (700, 900)
         self.window = window
         self.window.protocol("WM_DELETE_WINDOW", self.on_close)
-
 
         self.device_frame = tkinter.Frame(self.window, width=self.window_size[0],
                                           height=self.window_size[1])
@@ -44,17 +35,18 @@ class GUIDevicePopup(tkinter.Frame):
     def on_close(self):
         self.window.quit()
         self.window.destroy()
-        print("Closing subwindow")
 
+    # noinspection PyMethodMayBeStatic
     def add_buttons(self, master, button_labels, button_commands):
         for i in range(len(button_labels)):
             button = tkinter.Button(master, text=button_labels[i], command=button_commands[i])
             button.grid(row=0, column=i)
 
+    # noinspection PyMethodMayBeStatic
     def add_listbox(self, master):
         frame = tkinter.Frame(master, height=800)
         frame.grid(row=0, column=0)
-        listbox = tkinter.Listbox(frame, selectmode = "multiple")
+        listbox = tkinter.Listbox(frame, selectmode="multiple")
         listbox.pack(side=tkinter.LEFT, fill=tkinter.BOTH)
         scrollbar = tkinter.Scrollbar(frame)
         scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.BOTH)

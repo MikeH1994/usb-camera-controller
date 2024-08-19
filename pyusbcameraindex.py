@@ -5,8 +5,6 @@ From https://github.com/JohnHardy/pyusbcameraindex
 
 import re
 import sys
-import sys
-import time
 import pythoncom
 from collections import namedtuple
 from comtypes import (

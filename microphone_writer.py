@@ -6,11 +6,11 @@ import time
 import os
 import datetime
 import sounddevice as sd
-from microphone_manager import MicrophoneDevice, MicrophoneManager
+from microphone_manager import MicrophoneDevice
 
 
 class MicrophoneWriter:
-    def __init__(self, device: MicrophoneDevice, output_folder, name = None):
+    def __init__(self, device: MicrophoneDevice, output_folder, name=None):
         self.device = device
         self.stream = sd.InputStream(channels=device.channels, blocksize=int(device.samplerate), callback=self.callback)
         self.running = False
@@ -22,7 +22,7 @@ class MicrophoneWriter:
         self.data_queue = queue.Queue()
         self.write_thread = threading.Thread(target=self.write_loop)
 
-    def callback(self, indata, frames, time, status):
+    def callback(self, indata, _, __, status):
         """This is called (from a separate thread) for each audio block."""
         if status:
             print(status, file=sys.stderr)
@@ -48,12 +48,3 @@ class MicrophoneWriter:
             if not self.data_queue.empty():
                 self.output_file.write(self.data_queue.get())
             time.sleep(0.01)
-
-
-if __name__ == "__main__":
-    microphone_manager = MicrophoneManager()
-    device = microphone_manager.microphones[0]
-    microphone_writer = MicrophoneWriter(device, "./")
-    microphone_writer.start()
-    time.sleep(10.0)
-    microphone_writer.stop()

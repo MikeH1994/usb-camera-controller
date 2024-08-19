@@ -8,8 +8,8 @@ from PIL import ImageTk, Image
 from utils import resize_image
 import threading
 from gui_device_popup import GUIDevicePopup
-from camera_manager import CameraManager, USBCameraDevice
-from microphone_manager import MicrophoneManager, MicrophoneDevice
+from camera_manager import CameraManager
+from microphone_manager import MicrophoneManager
 from camera_writer import CameraWriter
 from microphone_writer import MicrophoneWriter
 from typing import List
@@ -17,7 +17,7 @@ import time
 import cv2
 from tkinter import simpledialog, messagebox
 from tkinter import filedialog
-import sys
+
 
 class GUI:
     displayed_image_size: Tuple[int, int]
@@ -163,11 +163,13 @@ class GUI:
             self.camera_selected_list.selection_set(i)
         self.image_changed = True
 
+    # noinspection PyMethodMayBeStatic
     def add_buttons(self, master, button_labels, button_commands):
         for i in range(len(button_labels)):
             button = tkinter.Button(master, text=button_labels[i], command=button_commands[i])
             button.grid(row=0, column=i)
 
+    # noinspection PyMethodMayBeStatic
     def add_listbox(self, master):
         frame = tkinter.Frame(master, height=400)
         frame.grid(row=0, column=0)
@@ -185,19 +187,19 @@ class GUI:
         n = min(self.get_camera_index(), max_n)
         self.camera_selected_scrollbar.set(n)
         if n < self.camera_selected_list.index("end"):
-            self.camera_selected_list.selection_clear(0, tkinter.END) # clear all selections
-            self.camera_selected_list.selection_set(n) # set the current selection
+            self.camera_selected_list.selection_clear(0, tkinter.END)  # clear all selections
+            self.camera_selected_list.selection_set(n)  # set the current selection
         self.image_changed = True
 
-    def update_camera_listbox_selection(self, n = None):
+    def update_camera_listbox_selection(self, n=None):
         n = self.get_camera_index() if n is None else n
 
         if n == -1:
             return
 
         if n < self.camera_selected_list.index("end"):
-            self.camera_selected_list.selection_clear(0, tkinter.END) # clear all selections
-            self.camera_selected_list.selection_set(n) # set the current selection
+            self.camera_selected_list.selection_clear(0, tkinter.END)
+            self.camera_selected_list.selection_set(n)
 
     def update_listboxes(self):
         self.camera_selected_list.delete(0, tkinter.END)
@@ -246,7 +248,8 @@ class GUI:
         if len(selection) > 0:
             i = self.camera_indices[selection[0]]
             old_name = self.camera_manager.camera_names[i]
-            new_name = tkinter.simpledialog.askstring(title="Rename camera", prompt="Rename camera", initialvalue=old_name)
+            new_name = tkinter.simpledialog.askstring(title="Rename camera", prompt="Rename camera",
+                                                      initialvalue=old_name)
 
             if new_name == old_name or new_name is None:
                 pass
@@ -306,7 +309,7 @@ class GUI:
                 pass
             elif new_name == "":
                 messagebox.showerror("Error", "Cannot use empty name")
-            elif new_name in self.camera_manager.camera_names:
+            elif new_name in self.microphone_manager.microphone_names:
                 messagebox.showerror("Error", "Name already exists in microphone names")
             else:
                 self.microphone_manager.microphone_names[i] = new_name
@@ -431,7 +434,7 @@ class GUI:
 def run():
     root = tkinter.Tk()
     root.call('wm', 'attributes', '.', '-topmost', True)
-    application = GUI(root)
+    GUI(root)
     root.mainloop()
 
 

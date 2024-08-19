@@ -1,7 +1,5 @@
 import queue
 import threading
-import sys
-import soundfile as sf
 import time
 from camera_manager import USBCameraDevice, CameraManager
 import datetime
@@ -60,12 +58,3 @@ class CameraWriter:
                 filepath = os.path.join(self.output_folderpath, self.formatter.format(timestamp))
                 cv2.imwrite(filepath, image)
             time.sleep(0.01)
-
-
-if __name__ == "__main__":
-    camera_manager = CameraManager()
-    device = camera_manager.cameras[0]
-    camera_writer = CameraWriter(device, "./", 1.0, "test camera")
-    camera_writer.start()
-    time.sleep(10.0)
-    camera_writer.stop()

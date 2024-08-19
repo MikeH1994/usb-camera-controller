@@ -1,9 +1,6 @@
-from pyusbcameraindex import enumerate_usb_video_devices_windows, USBCameraDevice
-import cv2
-import time
-from collections import namedtuple
-import sounddevice as sd
 import threading
+import cv2
+from pyusbcameraindex import enumerate_usb_video_devices_windows, USBCameraDevice
 
 
 class CameraManager:
@@ -37,7 +34,6 @@ class CameraManager:
                 images.append(None)
         return images
 
-
     @staticmethod
     def camera_is_available(device_index):
         camera = cv2.VideoCapture(device_index)
@@ -53,7 +49,7 @@ class CameraManager:
         return True, (int(h), int(w))
 
     @staticmethod
-    def get_available_cameras(indices_to_ignore = None, open_stream=False):
+    def get_available_cameras(indices_to_ignore=None, open_stream=False):
         indices_to_ignore = [] if indices_to_ignore is None else indices_to_ignore
         listed_devices = enumerate_usb_video_devices_windows()
         available_devices = []
@@ -67,8 +63,10 @@ class CameraManager:
                     if open_stream:
                         stream = cv2.VideoCapture(device.index)
 
-                    available_device = USBCameraDevice(name=device.name, vid=device.vid, pid=device.pid, index=device.index,
-                                                       path=device.path, size=size, device=stream, lock = threading.Lock())
+                    available_device = USBCameraDevice(name=device.name, vid=device.vid, pid=device.pid,
+                                                       index=device.index,
+                                                       path=device.path, size=size, device=stream,
+                                                       lock=threading.Lock())
                     available_devices.append(available_device)
             except Exception:
                 pass
