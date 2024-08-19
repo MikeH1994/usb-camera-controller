@@ -63,10 +63,10 @@ class CameraManager:
             try:
                 is_available, size = CameraManager.camera_is_available(device.index)
                 stream = None
-                if open_stream and CameraManager.camera_is_available(device.index):
-                    stream = cv2.VideoCapture(device.index)
-
                 if is_available:
+                    if open_stream:
+                        stream = cv2.VideoCapture(device.index)
+
                     available_device = USBCameraDevice(name=device.name, vid=device.vid, pid=device.pid, index=device.index,
                                                        path=device.path, size=size, device=stream, lock = threading.Lock())
                     available_devices.append(available_device)
