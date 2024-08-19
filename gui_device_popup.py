@@ -21,6 +21,8 @@ class GUIDevicePopup(tkinter.Frame):
         # self.pack()
         self.window_size = (700, 900)
         self.window = window
+        self.window.protocol("WM_DELETE_WINDOW", self.on_close)
+
 
         self.device_frame = tkinter.Frame(self.window, width=self.window_size[0],
                                           height=self.window_size[1])
@@ -38,6 +40,11 @@ class GUIDevicePopup(tkinter.Frame):
         for name in names:
             self.device_selected_list.insert(self.device_selected_list.size(), name)
         self.selected_indices = []
+
+    def on_close(self):
+        self.window.quit()
+        self.window.destroy()
+        print("Closing subwindow")
 
     def add_buttons(self, master, button_labels, button_commands):
         for i in range(len(button_labels)):
@@ -58,6 +65,7 @@ class GUIDevicePopup(tkinter.Frame):
     def cb_add_device(self):
         self.selected_indices = self.device_selected_list.curselection()
         self.window.quit()
+        self.window.destroy()
 
 
 def run():

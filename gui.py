@@ -17,7 +17,7 @@ import time
 import cv2
 from tkinter import simpledialog, messagebox
 from tkinter import filedialog
-
+import sys
 
 class GUI:
     displayed_image_size: Tuple[int, int]
@@ -110,6 +110,16 @@ class GUI:
 
     def on_close(self):
         self.running = False
+        if self.writing_data:
+            self.writing_data = False
+            if self.write_data_thread is not None:
+                self.write_data_thread.join()
+        if self.image_capture_thread.is_alive():
+            self.image_capture_thread.join(timeout=2)
+        if self.image_drawing_thread.is_alive():
+            self.image_drawing_thread.join(timeout=2)
+        self.window.quit()
+        self.window.destroy()
 
     def cb_data_capture(self):
         if self.writing_data:
@@ -117,16 +127,25 @@ class GUI:
             if self.write_data_thread is not None:
                 self.write_data_thread.join()
         else:
+            if len(self.camera_indices) + len(self.microphone_indices) == 0:
+                messagebox.showerror("Error", "Add a device before beginnning capture")
+                return
+
             output_folderpath = filedialog.askdirectory()
             if output_folderpath is None or output_folderpath == "":
                 return
 
-            frame_rate = simpledialog.askfloat(title="Frame rate", prompt="Enter frame rate", initialvalue=1.0)
+            frame_rate = simpledialog.askfloat(title="Frame rate", prompt="Enter frame rate", initialvalue=20.0)
             if frame_rate is None:
                 return
 
             if frame_rate < 0.0:
                 messagebox.showerror("Error", "Frame rate must be positive")
+
+            start = messagebox.askokcancel(title="Start Capture?", message="Start capture?")
+
+            if not start:
+                return
 
             self.write_data_thread = threading.Thread(target=self.write_data_loop, args=(output_folderpath, frame_rate))
             self.write_data_thread.start()
@@ -180,7 +199,6 @@ class GUI:
             self.camera_selected_list.selection_clear(0, tkinter.END) # clear all selections
             self.camera_selected_list.selection_set(n) # set the current selection
 
-
     def update_listboxes(self):
         self.camera_selected_list.delete(0, tkinter.END)
         self.microphone_selected_list.delete(0, tkinter.END)
@@ -211,7 +229,6 @@ class GUI:
         popup = GUIDevicePopup(root, names)
         root.call('wm', 'attributes', '.', '-topmost', True)
         root.mainloop()
-        root.destroy()
         selected_indices = [indices_to_display[i] for i in popup.selected_indices]
 
         if len(selected_indices) != 0:
@@ -256,7 +273,6 @@ class GUI:
             self.update_camera_listbox_selection()
         self.modifying_devices = False
 
-
     def cb_add_microphone(self):
         if self.modifying_devices or self.writing_data:
             return
@@ -270,7 +286,6 @@ class GUI:
         popup = GUIDevicePopup(root, names)
         root.call('wm', 'attributes', '.', '-topmost', True)
         root.mainloop()
-        root.destroy()
         selected_indices = [indices_to_display[i] for i in popup.selected_indices]
         self.modifying_devices = False
         self.microphone_lock.release()
@@ -342,7 +357,6 @@ class GUI:
                     continue
 
                 if camera_index >= len(self.last_images):
-                    print("draw_image() - camera selected is out of bounds ({})".format(camera_index))
                     self.update_image_label(self.default_image)
                     time.sleep(0.01)
                     continue
