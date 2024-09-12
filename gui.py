@@ -40,21 +40,25 @@ class GUI:
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_close)
 
+        self.menu_bar = tkinter.Menu(self.window)
+        self.capture_menu = tkinter.Menu(self.menu_bar, tearoff=False)
+        self.capture_menu.add_command(label="Start Capture", command=self.cb_data_capture)
+        self.menu_bar.add_cascade(menu=self.capture_menu, label="Capture")
+        self.window.config(menu=self.menu_bar)
+
         self.last_mousepos = (0, 0)
-        self.displayed_image_size = (360, 480)
+        self.displayed_image_size = (576, 432)
         self.default_image = np.zeros(self.displayed_image_size, dtype=np.uint8)
 
         # Create left and right frames
-        self.frame_tl = tkinter.Frame(self.window, width=self.displayed_image_size[1],
-                                      height=self.displayed_image_size[0],
+        self.frame_tl = tkinter.Frame(self.window, width=self.displayed_image_size[0],
+                                      height=self.displayed_image_size[1],
                                       bg='grey')
-        self.frame_tl.grid(row=0, column=0, padx=10, pady=10)
+        self.frame_tl.grid(row=0, column=0, padx=10, pady=0)
         self.frame_tr = tkinter.Frame(self.window, width=200,
-                                      height=self.displayed_image_size[0],
+                                      height=self.displayed_image_size[1],
                                       bg='grey')
-        self.frame_tr.grid(row=0, column=1, padx=10, pady=10)
-        self.frame_br = tkinter.Frame(self.window, width=50, height=50, bg='grey')
-        self.frame_br.grid(row=1, column=1, padx=10, pady=10)
+        self.frame_tr.grid(row=0, column=1, padx=10, pady=0)
 
         self.image_label = tkinter.Label(master=self.frame_tl)
         self.image_label.pack(side=tkinter.TOP, fill=tkinter.BOTH)
@@ -63,7 +67,7 @@ class GUI:
         self.camera_selected_scrollbar.pack(side=tkinter.BOTTOM, fill=tkinter.BOTH)
 
         # create tabs
-        self.tabs = ttk.Notebook(self.frame_tr, height=self.displayed_image_size[0]-23)
+        self.tabs = ttk.Notebook(self.frame_tr, height=self.displayed_image_size[1]-23)
         self.cameras_tab = tkinter.Frame(self.tabs, width=200)
         self.microphones_tab = tkinter.Frame(self.tabs, width=200)
         self.targets_tab = tkinter.Frame(self.tabs, width=200)
@@ -93,8 +97,6 @@ class GUI:
         self.add_buttons(self.microphone_options_frame, button_labels=["Add", "Rename", "Remove"],
                          button_commands=[self.cb_add_microphone, self.cb_rename_microphone, self.cb_remove_microphone])
 
-        self.data_capture_button = tkinter.Button(self.frame_br, text="Start", command=self.cb_data_capture)
-        self.data_capture_button.grid(row=0, column=0)
 
         self.camera_selected_list.bind("<<ListboxSelect>>", self.cb_camera_listbox_changed)  # add callback
         self.update_camera_scrollbar()
@@ -140,7 +142,6 @@ class GUI:
                 messagebox.showerror("Error", "Please select an empty folder")
                 return
 
-
             frame_rate = simpledialog.askfloat(title="Frame rate", prompt="Enter frame rate", initialvalue=20.0)
             if frame_rate is None:
                 return
@@ -159,9 +160,9 @@ class GUI:
             self.writing_data = True
 
         if self.writing_data:
-            self.data_capture_button.config(text="Stop")
+            self.capture_menu.entryconfigure(1, label="Stop Capture")
         else:
-            self.data_capture_button.config(text="Start")
+            self.capture_menu.entryconfigure(1, label="Start Capture")
 
     def cb_camera_scrollbar_changed(self, i):
         i = int(i)
