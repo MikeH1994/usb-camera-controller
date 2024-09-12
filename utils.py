@@ -4,6 +4,10 @@ import numpy as np
 from numpy.typing import NDArray
 
 
+def get_timestamp_format():
+    return '%Y%m%d-%H%M%S.%f'
+
+
 def pad_image(img: NDArray, dst_size: Tuple[int, int]):
     """
 

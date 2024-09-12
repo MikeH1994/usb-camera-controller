@@ -23,7 +23,7 @@ import os
 class GUI:
     displayed_image_size: Tuple[int, int]
 
-    def __init__(self, window: tkinter.Tk):
+    def __init__(self, window: tkinter.Tk, scale_factor=1.0):
         # Create and display a test window for viewing the menus
         self.camera_manager = CameraManager()
         self.microphone_manager = MicrophoneManager()
@@ -47,7 +47,7 @@ class GUI:
         self.window.config(menu=self.menu_bar)
 
         self.last_mousepos = (0, 0)
-        self.displayed_image_size = (576, 432)
+        self.displayed_image_size = (int(640*scale_factor), int(480*scale_factor))
         self.default_image = np.zeros(self.displayed_image_size, dtype=np.uint8)
 
         # Create left and right frames
@@ -442,7 +442,7 @@ class GUI:
 def run():
     root = tkinter.Tk()
     root.call('wm', 'attributes', '.', '-topmost', True)
-    GUI(root)
+    GUI(root, scale_factor=0.9)
     root.mainloop()
 
 

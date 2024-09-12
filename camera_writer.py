@@ -1,6 +1,8 @@
 import queue
 import threading
 import time
+
+import utils
 from camera_manager import USBCameraDevice, CameraManager
 import datetime
 import os
@@ -47,7 +49,7 @@ class CameraWriter:
             self.lock.release()
             if ret:
                 self.image_queue.put(frame)
-                self.timestamp_queue.put(now.strftime('%Y%m%d%H%M%S%f')[:-3])
+                self.timestamp_queue.put(now.strftime(utils.get_timestamp_format())[:-3])
             t2 = time.time()
 
             time_taken = t2 - t1
@@ -63,7 +65,7 @@ class CameraWriter:
                 cv2.imwrite(filepath, image)
 
                 if self.output_avi_file is None:
-                    timestamp_str = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')[:-3]
+                    timestamp_str = datetime.datetime.now().strftime(utils.get_timestamp_format())[:-3]
                     avi_filename = os.path.join(self.output_root, self.formatter_avi.format(timestamp_str))
                     output_size = (image.shape[1], image.shape[0])
 

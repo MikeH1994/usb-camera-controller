@@ -7,6 +7,7 @@ import os
 import datetime
 import sounddevice as sd
 from microphone_manager import MicrophoneDevice
+import utils
 
 
 class MicrophoneWriter:
@@ -36,7 +37,7 @@ class MicrophoneWriter:
     def start(self):
         self.running = True
         self.stream.callback = self.callback
-        timestamp_str = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')[:-3]
+        timestamp_str = datetime.datetime.now().strftime(utils.get_timestamp_format())[:-3]
         output_filepath = os.path.join(self.output_folderpath, self.formatter.format(timestamp_str))
         self.output_file = sf.SoundFile(output_filepath, mode='w', samplerate=int(self.sample_rate),
                                         channels=self.n_channels)
