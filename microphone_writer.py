@@ -10,11 +10,16 @@ from microphone_manager import MicrophoneDevice
 
 
 class MicrophoneWriter:
-    def __init__(self, device: MicrophoneDevice, output_folder, name=None):
+    def __init__(self, device: MicrophoneDevice, output_root, name=None):
         self.device = device
         self.stream = sd.InputStream(channels=device.channels, blocksize=int(device.samplerate), callback=self.callback)
         self.running = False
-        self.output_folder = output_folder
+        self.output_root = output_root
+        self.output_folderpath = os.path.join(output_root, name) if name is not None else os.path.join(output_root, device.name)
+
+        if not os.path.exists(self.output_folderpath):
+            os.mkdir(self.output_folderpath)
+
         self.formatter = "({}) ".format(device.index) + device.name + " {}.wav" if name is None else name + " {}.wav"
         self.sample_rate = device.samplerate
         self.n_channels = device.channels
@@ -32,7 +37,7 @@ class MicrophoneWriter:
         self.running = True
         self.stream.callback = self.callback
         timestamp_str = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')[:-3]
-        output_filepath = os.path.join(self.output_folder, self.formatter.format(timestamp_str))
+        output_filepath = os.path.join(self.output_folderpath, self.formatter.format(timestamp_str))
         self.output_file = sf.SoundFile(output_filepath, mode='w', samplerate=int(self.sample_rate),
                                         channels=self.n_channels)
         self.write_thread.start()

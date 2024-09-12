@@ -8,14 +8,18 @@ import cv2
 
 
 class CameraWriter:
-    def __init__(self, device: USBCameraDevice, output_folderpath, frame_rate: float, name = None):
+    def __init__(self, device: USBCameraDevice, output_root, frame_rate: float, name = None):
         self.device = device
         self.capture_stream = device.device
         self.lock = device.lock
         self.running = False
-        self.output_folderpath = output_folderpath
+        self.output_root = output_root
+        self.output_folderpath = os.path.join(output_root, name) if name is not None else os.path.join(output_root, device.name)
+        if not os.path.exists(self.output_folderpath):
+            os.mkdir(self.output_folderpath)
         self.formatter = "({}) ".format(device.index) + device.name + " {}.jpg" if name is None else name + " {}.jpg"
-        self.output_file = None
+        self.formatter_avi = self.formatter.replace(".jpg", ".avi")
+        self.output_avi_file = None
         self.image_queue = queue.Queue()
         self.timestamp_queue = queue.Queue()
         self.write_thread = threading.Thread(target=self.write_loop)
@@ -57,4 +61,16 @@ class CameraWriter:
                 timestamp = self.timestamp_queue.get()
                 filepath = os.path.join(self.output_folderpath, self.formatter.format(timestamp))
                 cv2.imwrite(filepath, image)
+
+                if self.output_avi_file is None:
+                    timestamp_str = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')[:-3]
+                    avi_filename = os.path.join(self.output_root, self.formatter_avi.format(timestamp_str))
+                    output_size = (image.shape[1], image.shape[0])
+
+                    codec = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
+                    self.output_avi_file = cv2.VideoWriter(avi_filename, codec, self.frame_rate, output_size)
+                self.output_avi_file.write(image)
             time.sleep(0.01)
+
+        if self.output_avi_file is not None:
+            self.output_avi_file.release()

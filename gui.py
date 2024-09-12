@@ -17,6 +17,7 @@ import time
 import cv2
 from tkinter import simpledialog, messagebox
 from tkinter import filedialog
+import os
 
 
 class GUI:
@@ -40,7 +41,7 @@ class GUI:
         self.window.protocol("WM_DELETE_WINDOW", self.on_close)
 
         self.last_mousepos = (0, 0)
-        self.displayed_image_size = (256, 320)
+        self.displayed_image_size = (360, 480)
         self.default_image = np.zeros(self.displayed_image_size, dtype=np.uint8)
 
         # Create left and right frames
@@ -135,12 +136,18 @@ class GUI:
             if output_folderpath is None or output_folderpath == "":
                 return
 
+            if len(os.listdir(output_folderpath)) != 0:
+                messagebox.showerror("Error", "Please select an empty folder")
+                return
+
+
             frame_rate = simpledialog.askfloat(title="Frame rate", prompt="Enter frame rate", initialvalue=20.0)
             if frame_rate is None:
                 return
 
             if frame_rate < 0.0:
                 messagebox.showerror("Error", "Frame rate must be positive")
+                return
 
             start = messagebox.askokcancel(title="Start Capture?", message="Start capture?")
 
